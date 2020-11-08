@@ -29,6 +29,6 @@ class MapaState {
     dibujandoRecorrido: dibujandoRecorrido??this.dibujandoRecorrido,
     siguiendoUbicacion: siguiendoUbicacion??this.siguiendoUbicacion,
     centroMapa: centroMapa??this.centroMapa,
-    polyLines: polyLines??new Map<String, Polyline>()
+    polyLines: polyLines??this.polyLines
   );
 }

@@ -29,3 +29,15 @@ class MoverMapa extends MapaEvent{
     @required this.newPosition
   });
 }
+
+class CrearRutaInicioYDestino extends MapaEvent{
+  final List<LatLng> points;
+  final double distance;
+  final double duration;
+
+  CrearRutaInicioYDestino({
+    @required this.points,
+    @required this.distance,
+    @required this.duration
+  });
+}

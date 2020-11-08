@@ -30,43 +30,57 @@ class _MapaPageState extends State<MapaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _crearLatitudYLongitudText(),
+      body: _crearBody(),
       floatingActionButton: _crearFloatingActionButtons(),
     );
   }
 
-  Widget _crearLatitudYLongitudText(){
-    return Container(
-      width: double.infinity,
-      child: BlocBuilder<UbicacionBloc, UbicacionState>(
-        builder: (_, UbicacionState state){
-          return _crearWidgetDeInformacionUbicacion(state);
-        },
-      ),
+  Widget _crearBody(){
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          child: BlocBuilder<UbicacionBloc, UbicacionState>(
+            builder: (_, UbicacionState state){
+              return _crearWidgetDeInformacionUbicacion(state);
+            },
+          ),
+        ),
+        Positioned(
+          top: 10.0,
+          child: SearchBar()
+        ),
+        //TODOL: hacer el toggle de cuando se está manualmente
+        MarcadorManual()
+      ],
     );
   }
 
-  Widget _crearWidgetDeInformacionUbicacion(UbicacionState state){
-    if(state.existeUbicacion){
+  Widget _crearWidgetDeInformacionUbicacion(UbicacionState ubicacionState){
+    if(ubicacionState.existeUbicacion){
       final MapaBloc mapaBloc = BlocProvider.of<MapaBloc>(context);
       final UpdateLocation cambiarUbicacionEvent = UpdateLocation(
-        ubicacion: state.ubicacion
+        ubicacion: ubicacionState.ubicacion
       );
       mapaBloc.add(cambiarUbicacionEvent);
-      return _crearMapa(state);
+      return BlocBuilder<MapaBloc, MapaState>(
+        builder:(_, MapaState mapaState){
+          return _crearMapa(ubicacionState, mapaState);
+        }
+      );
     }
     else
       return Text('Ubicando');     
   }
 
-  Widget _crearMapa(UbicacionState state){ 
-    final LatLng actualPosition = state.ubicacion;
+  Widget _crearMapa(UbicacionState ubicacionState, MapaState mapaState){
+    final MapaBloc mapaBloc = context.bloc<MapaBloc>();
+    final LatLng actualPosition = ubicacionState.ubicacion;
     final CameraPosition initialCameraPosition = CameraPosition(
       target: actualPosition,
       zoom: 15.0,
     );
-    final MapaBloc mapaBloc = context.bloc<MapaBloc>();
-    final Map<String, Polyline> polylines = mapaBloc.state.polyLines;
+    final Map<String, Polyline> polylines = mapaState.polyLines;
     return GoogleMap(
       initialCameraPosition: initialCameraPosition,
       mapType: MapType.normal,

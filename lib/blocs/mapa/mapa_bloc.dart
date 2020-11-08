@@ -14,12 +14,14 @@ class MapaBloc extends Bloc<MapaEvent, MapaState> {
   
   GoogleMapController _googleMapController;
 
-  Polyline _rutaCompleta = new Polyline(
-    polylineId: PolylineId('0'),
+  Polyline _rutaHaciaDestino = new Polyline(
+    polylineId: PolylineId('ruta_hacia_destino'),
+    color: Colors.deepOrangeAccent,
     width: 4
   );
   Polyline _rutaRecorrida = new Polyline(
-    polylineId: PolylineId('1'),
+    polylineId: PolylineId('ruta_recorrida'),
+    color: Colors.transparent,
     width: 6
   );
   
@@ -62,7 +64,12 @@ class MapaBloc extends Bloc<MapaEvent, MapaState> {
       break;
       case MoverMapa:
         final MapaState newState = _crearStateForMoverMapa(event as MoverMapa);
-      yield newState;
+        yield newState;
+      break;
+      case CrearRutaInicioYDestino:
+        final MapaState newState = _crearRutaInicioYDestino(event as CrearRutaInicioYDestino);
+        yield newState;
+      break;
     }
   }
 
@@ -102,7 +109,7 @@ class MapaBloc extends Bloc<MapaEvent, MapaState> {
   Map<String, Polyline> _crearPolylinesMap(){
     return {
       'ruta_recorrida':_rutaRecorrida,
-      'ruta_completa':_rutaCompleta
+      'ruta_hacia_destino':_rutaHaciaDestino
     };
   }
 
@@ -117,9 +124,17 @@ class MapaBloc extends Bloc<MapaEvent, MapaState> {
   }
 
   MapaState _crearStateForMoverMapa(MoverMapa event){
-    //print('en movimiento, new position: ${event.newPosition}');
     final LatLng newPosition = event.newPosition;
     return state.copyWith(centroMapa: newPosition);
+  }
+
+  MapaState _crearRutaInicioYDestino(CrearRutaInicioYDestino event){
+    _rutaHaciaDestino = _rutaHaciaDestino.copyWith(
+      pointsParam: event.points
+    );
+    final Map<String, Polyline> newPolylines = _crearPolylinesMap();
+    //TODO: implementar marcadores
+    return state.copyWith(polyLines: newPolylines);
   }
 
 }
